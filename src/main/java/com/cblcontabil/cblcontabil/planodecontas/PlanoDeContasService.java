@@ -22,4 +22,19 @@ public class PlanoDeContasService {
         return planoDeContasRepository.findByCodigo(codigo);
     }
 
+    public PlanoDeContasModel criarConta(PlanoDeContasModel contasContabil){
+        return planoDeContasRepository.save(contasContabil);
+    }
+
+    public void deletarPorCodigo(int codigo) {
+        PlanoDeContasModel conta = planoDeContasRepository.findByCodigo(codigo)
+                .orElseThrow(() -> new RuntimeException("Conta com código " + codigo + " não encontrada para exclusão."));
+
+        planoDeContasRepository.delete(conta);
+    }
+
+    public void atualizarConta(){
+
+    }
+
 }

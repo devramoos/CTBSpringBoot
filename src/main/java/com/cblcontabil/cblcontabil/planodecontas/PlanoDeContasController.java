@@ -22,8 +22,8 @@ public class PlanoDeContasController {
     }
 
     @PostMapping("/criar")
-    public String criarContas(){
-        return "Nova conta criada";
+    public PlanoDeContasModel criarContas(@RequestBody PlanoDeContasModel planoDeContasModel){
+        return planoDeContasService.criarConta(planoDeContasModel);
     }
 
     @GetMapping("/listar")
@@ -31,7 +31,7 @@ public class PlanoDeContasController {
         return planoDeContasService.listarConta();
     }
 
-    @GetMapping("/listacontaporcodigo/{codigo}")
+    @GetMapping("/buscarcontaporcodigo/{codigo}")
     public PlanoDeContasModel buscarPorCodigo(@PathVariable int codigo) {
         return planoDeContasService.buscarContaPorCodigo(codigo)
                 .orElse(null);
@@ -42,9 +42,16 @@ public class PlanoDeContasController {
         return "Sua conta foi alterada com sucesso";
     }
 
-    @DeleteMapping("/deletarConta")
-    public String deletarConta(){
-        return "Deletado sua conta";
+    @DeleteMapping("/deletarconta/{codigo}")
+    public void deletarConta(@PathVariable int codigo){
+        PlanoDeContasModel conta = planoDeContasService.buscarContaPorCodigo(codigo)
+                .orElse(null);
+
+        if (conta != null) {
+            planoDeContasService.deletarPorCodigo(codigo);
+        } else {
+            throw new RuntimeException("Conta não encontrada");
+        }
     }
 
 }
