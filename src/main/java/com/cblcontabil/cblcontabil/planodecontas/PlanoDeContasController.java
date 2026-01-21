@@ -1,5 +1,9 @@
 package com.cblcontabil.cblcontabil.planodecontas;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -19,13 +23,21 @@ public class PlanoDeContasController {
         this.planoDeContasService = planoDeContasService;
     }
 
-    @GetMapping
+    @GetMapping("/boasvindas")
+    @Operation(summary = "Mensagem de boas vindas", description = "Essa rota da uma mensagem de boas vindas para quem acessa")
     public String boasVindas() {
         return "Boas vindas";
     }
 
     @PostMapping("/criar")
-    public ResponseEntity<String> criarContas(@RequestBody PlanoDeContasDTO conta) {
+    @Operation(summary = "Cria uma nova conta", description = "Essa rota cria uma nova conta contábil e inseri no banco de dados")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Conta contábil criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro na criação da conta contábil")
+    })
+    public ResponseEntity<String> criarContas(
+            @Parameter(description = "Usuario manda os dados da nova conta no corpo da requisicao ")
+            @RequestBody PlanoDeContasDTO conta) {
         PlanoDeContasDTO novaConta = planoDeContasService.criarConta(conta);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("Conta criada com sucesso: " + novaConta.getDescricao() + " (Código): " + novaConta.getCodigo());
@@ -38,6 +50,11 @@ public class PlanoDeContasController {
     }
 
     @GetMapping("/buscarcontaporcodigo/{codigo}")
+    @Operation(summary = "Busca uma conta pelo codigo", description = "Essa rota busca uma conta contabil no banco de dados pelo codigo enviado pelo user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Conta contabil foi encontrada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Erro na busca da conta contabil")
+    })
     public ResponseEntity<?> buscarPorCodigo(@PathVariable int codigo) {
         PlanoDeContasDTO contaCodigo = planoDeContasService.buscarContaPorCodigo(codigo)
                 .orElse(null);
@@ -52,7 +69,16 @@ public class PlanoDeContasController {
     }
 
     @PutMapping("/alterarconta/{codigo}")
-    public ResponseEntity<?> alterarConta(@PathVariable int codigo, @RequestBody PlanoDeContasDTO planoDeContasDTO) {
+    @Operation(summary = "Altera conta pelo codigo", description = "Essa rota altera uma conta contabil no banco de dados pelo codigo enviado pelo user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Conta contabil foi alterada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Erro na alteração da conta contabil")
+    })
+    public ResponseEntity<?> alterarConta(
+            @Parameter(description = "Usuario manda o codigo no caminho da requisiçao")
+            @PathVariable int codigo,
+            @Parameter(description =  "usuario manda os dados da conta a ser atualizada no corpo da requisicao")
+            @RequestBody PlanoDeContasDTO planoDeContasDTO) {
 
         PlanoDeContasDTO conta = planoDeContasService.atualizarConta(codigo, planoDeContasDTO);
 
@@ -72,12 +98,11 @@ public class PlanoDeContasController {
             .orElse(null);
         if (planoDeContasService.buscarContaPorCodigo(codigo) != null){
             planoDeContasService.deletarPorCodigo(codigo);
-            return ResponseEntity.ok("Conta com o código " + codigo + " excluída com sucesso.");
+            return ResponseEntity.ok("Conta com o codigo " + codigo + " excluída com sucesso.");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Conta com o código " + codigo + "não encontrada.");
+                    .body("Conta com o codigo " + codigo + "não encontrada.");
         }
-
 
     }
 }
