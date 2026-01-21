@@ -96,7 +96,7 @@ public class PlanoDeContasController {
         public ResponseEntity<String> deletarConta(@PathVariable int codigo) {
         PlanoDeContasDTO conta = planoDeContasService.buscarContaPorCodigo(codigo)
             .orElse(null);
-        if (planoDeContasService.buscarContaPorCodigo(codigo) != null){
+        if (conta != null){
             planoDeContasService.deletarPorCodigo(codigo);
             return ResponseEntity.ok("Conta com o codigo " + codigo + " excluída com sucesso.");
         } else {
